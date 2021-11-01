@@ -1,5 +1,16 @@
-function Dino(dinoName, dinoWhere, dinoWhen, dinoFact, dinoWeight, dinoHeight, dinoDiet, species) {
-	this.species = species || 'Dinosaurs',
+/**
+* @description Represents a dinosaur
+* @constructor
+* @param {string} dinoName - The name or species of the dinosaur
+* @param {string} dinoWhere - Where the dinosaur roamed
+* @param {string} dinoWhen - What period the dinosaur lived in
+* @param {string} dinoFact - A fun fact about the dinosaur
+* @param {number} dinoWeight - How much the dinosaur weighed
+* @param {number} dinoHeight - The dinosaur height
+* @param {string} dinoDiet - The dinosaur diet
+* @param {string} dinoDiet - The dinosaur diet
+*/
+function Dino(dinoName, dinoWhere, dinoWhen, dinoFact, dinoWeight, dinoHeight, dinoDiet) {
 	this.name = dinoName,
 	this.where = dinoWhere,
     this.when = dinoWhen,
@@ -9,21 +20,12 @@ function Dino(dinoName, dinoWhere, dinoWhen, dinoFact, dinoWeight, dinoHeight, d
 	this.diet = dinoDiet
 }
 
-const triceratops = new Dino('Triceratops','North America','Late Cretaceous','First discovered in 1889 by Othniel Charles Marsh',13000,114,'Herbavor');
-const rex = new Dino('Tyrannosaurus Rex','North America','Late Cretaceous','The largest known skull measures in at 5 feet long.',11905,144,'Carnivor');
-const anklyosaurus = new Dino('Anklyosaurus','North America','Late Cretaceous','Anklyosaurus survived for approximately 135 million years.',10500,55,'Herbavor');
-const brachiosaurus = new Dino('Brachiosaurus','North America','Late Jurasic','An asteroid was named 9954 Brachiosaurus in 1991.',70000,372,'Herbavor');
-const stegosaurus = new Dino('Stegosaurus','North America, Europe, Asia','Late Jurasic to Early Cretaceous','The Stegosaurus had between 17 and 22 seperate places and flat spines.',11600,79,'Herbavor');
-const elasmosaurus = new Dino('Elasmosaurus','North America','Late Cretaceous','Elasmosaurus was a marine reptile first discovered in Kansas.',16000,59,'Carnivor');
-const pteranodon = new Dino('Pteranodon','North America','Late Cretaceous','Actually a flying reptile, the Pteranodon is not a dinosaur.',44,20,'Carnivor');
-const pigeon = new Dino('Pigeon','World Wide','Holocene','All birds are living dinosaurs.',0.5,9,'Herbavor','Columbidae');
-
-const human = {
-	species: 'Human',	
-};
-
+/**
+* @description Represents a human. The constructor uses IIFE to hide data and returns an object with state that is taken from the user input
+* @constructor
+*/
 function Human() {
-	return (function(data){
+	return (function(){
 		let _name;
 		let _height;
 		let _weight;
@@ -35,14 +37,14 @@ function Human() {
 		}
 		
 		function readHeight() {
-			const feet = document.getElementById('feet').value;
-			const inches = document.getElementById('inches').value;
+			const feet = document.getElementById('feet').value || 0;
+			const inches = document.getElementById('inches').value || 0;
 			_height = parseInt((feet * 12) + inches);
 			return _height;
 		}
 		
 		function readWeight() {
-			_weight = parseFloat(document.getElementById('weight').value);
+			_weight = parseFloat(document.getElementById('weight').value) || 0;
 			return _weight;
 		}
 		
@@ -60,8 +62,10 @@ function Human() {
 	}());
 }
 
-const all = [triceratops,rex,anklyosaurus,brachiosaurus,human,stegosaurus,elasmosaurus,pteranodon,pigeon];
-
+/**
+* @description A method of the Dino class that compares hieghts
+* @param {number} other - The height of the object to compare this dinosaur to
+*/
 Dino.prototype.compareHeight = function(other) {
 	if (this.height < other.height) {
 		return 'smaller than';
@@ -71,6 +75,10 @@ Dino.prototype.compareHeight = function(other) {
 	return 'similar in height to';
 };
 
+/**
+* @description A method of the Dino class that compares wieghts
+* @param {number} other - The wieght of the object to compare this dinosaur to
+*/
 Dino.prototype.compareWeight = function(other) {
 	if (this.weight < other.weight) {
 		return 'lighter than';
@@ -80,17 +88,62 @@ Dino.prototype.compareWeight = function(other) {
 	return 'similar in weight to';
 };
 
+/**
+* @description A method of the Dino class that compares diets
+* @param {string} other - The diet of the object to compare this dinosaur to
+*/
 Dino.prototype.compareDiet = function(other) {
-	if (this.diet === other.diet) {
+	if (this.diet.toLowerCase() === other.diet.toLowerCase()) {
 		return 'similar';
 	} 
 	return 'different';
 };
 
+/**
+* @description Create a grid from ac ollection of dinosaurs from an input file and one human to represent the user input
+* @returns {number[]} A collection of species
+*/
+function buildGrid(allSpecies, grid) {
+	
+	allSpecies.forEach((animal) => {
+		let human = allSpecies[4];
+		let fileName;
+		if (animal.isHuman) {
+			fileName = 'human';
+		} else {
+			fileName = animal.name;
+		}
+		const newGridItem = document.createElement('div');
+		newGridItem.classList.add('grid-item');
+		newGridItem.setAttribute('style', 'padding: 10px');
+		
+		const newImg = document.createElement('img');
+		newImg.src = './images/' + fileName + '.png';
+		
+		newGridItem.appendChild(document.createTextNode(animal.name));
+		newGridItem.appendChild(newImg);
+		if (animal.name === 'Pigeon') {
+			newGridItem.appendChild(document.createTextNode(getRandomDinoFact(animal, human, 5)));
+		} else if (!animal.isHuman) {
+			const factIndex = Math.floor(Math.random() * 9);
+			newGridItem.appendChild(document.createTextNode(getRandomDinoFact(animal, human, factIndex)));
+		}
+		
+		grid.appendChild(newGridItem);
+	})
+}
+
+/**
+* @description Hide an HTML element by setting its style display property to none
+*/
 function hideElementById(id) {
 	document.getElementById(id).style.display='none';
 }
 
+/**
+* @description A function to pretty print the number values from inches as a number to a string in ffet and inches 
+* @returns {string} A formatted string representing the height in feet and inches
+*/
 function getPrettyHeight(height) {
 	let feet = Math.floor(height/12);
 	let feetString =  feet === 0 ? '' : feet === 1 ? `${feet} foot` : `${feet} feet`;
@@ -106,73 +159,60 @@ function getPrettyHeight(height) {
 	return `${feetString} and ${inchesString}`;
 }
 
+/**
+* @description A function to build a string that is a fact about a specific dinosaur or a comparison fact to the user input human
+* @param {Dino} dino - the dino oject 
+* @param {Human} human - the human object
+* @param {number} factIndex - A number used to pick 1 of 9 facts
+* @returns {string} A formatted string representing the fact
+*/
 function getRandomDinoFact(dino, human, factIndex) {
 	switch (factIndex) {
 		case 0:
 			return dino.name + ' grew to a weight of ' + dino.weight + ' lbs';
-			break;
 		case 1:
 			return dino.name + ' grew to a height of ' + getPrettyHeight(dino.height);
-			break;
 		case 2:
 			return dino.name + ' had a ' + dino.diet + ' diet';
-			break;
 		case 3:
 			return dino.name + ' roamed ' + dino.where;
-			break;
 		case 4:
 			return dino.name + ' lived during the ' + dino.when;
-			break;
 		case 5:
 			return dino.fact;
-			break;
 		case 6:
 			return dino.name + ' was ' + dino.compareHeight(human) + ' me';
-			break;
 		case 7:
 			return dino.name + ' was ' + dino.compareWeight(human) + ' me';
-			break;
 		case 8:
 			return dino.name + ' and I had a ' + dino.compareDiet(human) + ' diet';
-			break;
 	}
 }
 
+/**
+* @description A function that initializes the data model, displays the infographic and hides the form
+* @callback
+* @param {Dino} dino - the dino oject 
+* @param {Human} human - the human object
+* @param {number} factIndex - A number used to pick 1 of 9 facts
+* @returns {string} A formatted string representing the fact
+*/
 function infographic() {
 	
 	const grid = document.getElementById('grid');
 	
-	const factIndex = Math.floor(Math.random() * 9);
-	 
-	Object.assign(human, new Human());
+	const human = Object.assign({ isHuman: true }, new Human());
 	
-	all.forEach((animal, index) => {
-		let fileName;
-		if (animal.species === 'Human') {
-			fileName = animal.species;
-		} else {
-			fileName = animal.name;
-		}
-		const newGridItem = document.createElement('div');
-		newGridItem.classList.add('grid-item');
-		newGridItem.setAttribute('style', 'padding: 10px');
+	fetch('https://raw.githubusercontent.com/udacity/Javascript/master/dino.json')
+		.then(response => response.json())
+		.then(json => json.Dinos.map(dino => new Dino(dino.species,dino.where,dino.when,dino.fact,dino.weight,dino.height,dino.diet)))
+		.then(allSpecies => {
+			allSpecies.splice(4, 0, human);
+			return allSpecies;
+		})
+		.then(allSpecies => buildGrid(allSpecies, grid))
+		.then(hideElementById('dino-compare'));
 		
-		const newImg = document.createElement('img');
-		newImg.src = './images/' + fileName + '.png';
-		
-		newGridItem.appendChild(document.createTextNode(animal.name));
-		newGridItem.appendChild(newImg);
-		if (animal.species !== 'Human' && animal.species !== 'Columbidae') {
-			newGridItem.appendChild(document.createTextNode(getRandomDinoFact(animal, human, 1)));
-		} 
-		if (animal.species === 'Columbidae') {
-			newGridItem.appendChild(document.createTextNode(getRandomDinoFact(animal, human, 5)));
-		}
-		
-		grid.appendChild(newGridItem);
-	});	
-	
-	hideElementById('dino-compare');
 }
 
 const btn = document.getElementById('btn');
